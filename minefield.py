@@ -1,78 +1,85 @@
+import os
+import sys
 from random import randint
 
-#Creating a 10 x 11 board composed of '-'
-board = []
+playing = True
 
-for i in range(10):
-  board.append(['-'] * 11)
+while playing == True:
+  # create a 10 x 11 board
+  board = []
 
-#Creating 30 mines with random coordinates 
-mine_rows = []
-mine_cols = []
+  for i in range(10):
+    board.append(['-'] * 11)
 
-for i in range(31):
-  mine_row = randint(0, len(board) - 1)
-  mine_rows.append(mine_row)
+  # create mine coordinates
+  mine_rows = [randint(0, len(board) - 1) for i in range(31)]
+  mine_cols = [randint(0, len(board) - 1) for i in range(31)]
 
-for i in range(31):
-  mine_col = randint(0, len(board[0]) - 1)
-  mine_cols.append(mine_col)
+  # set hero starting position
+  hero_row = len(board) - 1
+  hero_col = len(board[0]) // 2
+  board[hero_row][hero_col] = "O"
 
-#Setting the starting coordinates of the player(hero)
-hero_row = len(board) - 1
-hero_col = len(board[0]) // 2
-board[hero_row][hero_col] = "O"
+  # display board & instructions
+  for i in range(len(board)):
+    print ("".join(board[i]))
 
-#Printing the board
-for i in range(len(board)):
-  print ("".join(board[i]))
+  print ("")  
+  print ("Choose W,A,S or D + enter to move")
 
-#Function to check if the position of the hero is the same as the position of a mine
-def is_it_dead(hero_row, hero_col, mine_rows, mine_cols):
-  for i in range(30):
-    if hero_row == mine_rows[i] and hero_col == mine_cols[i]:
-      return True
+  def is_it_dead(hero_row, hero_col, mine_rows, mine_cols):
+    '''Helper function to check if hero has landed on mine.'''
+    for i in range(30):
+      if hero_row == mine_rows[i] and hero_col == mine_cols[i]:
+        return True
 
-#Printing instructions
-print ("")  
-print ("Choose W,A,S or D + enter to move")
+  # keep playing while player has remaining lives
+  lives = 6
+  while lives > 0:
 
-#Assigning how many lives the player has
-lives = 6
-
-#While the player still has lives remaining they can still play
-while lives > 0:
-
-#Getting the player to input w,a,s or d and moving the hero accordingly
-  board[hero_row][hero_col] = "-"
-  move = input("")
-  if move == "w":
-    hero_row -= 1
-  elif move == "a":
-    hero_col -= 1
-  elif move == "s":
-    hero_row += 1
-  elif move == "d":
-    hero_col += 1
+    # use user input to update hero position
+    board[hero_row][hero_col] = "-"
+    move = input("")
+    if move == "w":
+      hero_row -= 1
+    elif move == "a":
+      hero_col -= 1
+    elif move == "s":
+      hero_row += 1
+    elif move == "d":
+      hero_col += 1
   
-#If the hero lands on a mine one life is lost and the position of the hero is reset. If the hero reaches the top of the board then the player wins. If the player runs out of lives then it is game over.
-  if is_it_dead(hero_row, hero_col, mine_rows, mine_cols) == True:
-    board[hero_row][hero_col] = "X"
-    lives -= 1
-    print ("Mine! You have %d lives remaining"   %(lives))
-    hero_row = len(board) - 1
-    hero_col = len(board[0]) // 2
-    board[hero_row][hero_col] = "O"
-    
-  if hero_row == 0:
-    print ("You Win!")
-    lives -= 6
-  else:
-    board[hero_row][hero_col] = "O"
-    
-  if lives == 0:
-    print ("Game Over!")
+    # check if hero has landed on mine
+    if is_it_dead(hero_row, hero_col, mine_rows, mine_cols) == True:
+      board[hero_row][hero_col] = "X"
+      lives -= 1
+      print ("Mine! You have %d lives remaining"   %(lives))
+      hero_row = len(board) - 1
+      hero_col = len(board[0]) // 2
+      board[hero_row][hero_col] = "O"
   
-#board is reprinted with updated positions
-  for e in range(len(board)):
-    print ("".join(board[e]))
+    # if hero reaches end of board player wins
+    if hero_row == 0:
+      print ("You Win!")
+      lives -= 6
+    else:
+      board[hero_row][hero_col] = "O"
+    
+    if lives == 0:
+      print ("Game Over!")
+  
+    # reprint board with updated positions
+    for e in range(len(board)):
+      print ("".join(board[e]))
+  
+  # check if player wants to play again
+  answered = False
+  while answered == False:
+    reset = input("Play again? (y/n):")
+    if reset.lower() in ("no", "n"):
+      answered = True
+      playing = False
+    elif reset.lower() in ("yes", "y"):
+      answered = True
+    else:
+      print("Accepted inputs include 'yes', 'y', 'no', or 'n'")
